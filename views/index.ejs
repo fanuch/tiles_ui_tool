@@ -1,0 +1,360 @@
+<script src="/js/interact.min.js"></script>
+<link rel="stylesheet" href="/css/default.css">
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<style>
+.colour-it {
+  background-color: #29e;
+  color: white;
+  font-size: 20px;
+  font-family: sans-serif;
+  border-radius: 8px;
+  height:50px;
+  display: inline-block;
+  min-width: 150px;
+}
+.resize-drag {
+  background-color: #29e;
+  color: white;
+  font-size: 20px;
+  font-family: sans-serif;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 30px 20px;
+
+  width: 80px;
+  height: 80px;
+
+  /* This makes things *much* easier */
+  box-sizing: border-box;
+}
+
+.colleft{
+   position: relative;
+   width: 100%;
+   right: 40%;
+   background-color: #f4f4f4
+}
+.col1{
+   position: relative;
+   overflow: hidden;
+   float: left;
+   width: 38%;
+   left: 101%;
+   margin-top: 15px;
+   height:inherit;
+   background-color: #e6e6e6
+}
+.col2{
+   position: relative;
+   overflow: hidden;
+   float: left;
+   width: 58%;
+   left: 3%;
+   margin-top: 15px;
+   height:100%;
+   background-color: #e6e6e6
+}
+</style>
+
+<div style="padding-left:15px;">
+  <span id="text" class="colour-it">New Tile</span>
+  <span id="continue" class="colour-it">Render YAML</span>
+</div>
+    <div class="colleft">
+        <div class="col1">
+            <pre>
+<code class="yaml">
+// Welcome to Fanuch's Custom UI Tiles tool
+// =-=-=-=-==-==-=-
+// Instuctions
+// =-=-=-=-==-==-=-
+// 
+// Why: I don't want to "calculate" grid data off the top of my head.
+// This will figure out how many columns, rows, width, heights, positions
+// all for you!
+//
+// How: Click on "New Tile" to create a tile. It will appear in the top right.
+// note: it will overlap any tile in the top left corner, but it will 
+// be red when created. So find the red tile and move it.
+//
+// Move: click on the center of the tile and drag with mouse (or finger 
+// if you're a fancy mobile user).
+//
+// Resize: Click on a corner an drag to resize
+//
+// Rename: Double click on a tile to name it the entity name.
+// e.g. `script.bravia_tv_on`
+//
+// Finished: Click on "Render YAML"
+//
+// Dev note: Yes I know that the tiles clip the box, this isn't perfect and I made 
+// it in one Sunday evening 
+//
+// TODO: Option to change colour of tiles and text
+// TODO: Change width and height of tiles
+// TODO: Change gap between tiles
+
+</code></pre>
+        </div>
+        <div class="col2">
+          <p></p>
+        </div> 
+    </div> 
+<script>
+//
+// Create element JS
+//
+iterator = 0;
+
+document.getElementById("text").onclick = function () {
+    // The size of the boxes
+    // @TODO make this dynamic for both height and width
+    box_size = '75px';
+
+    // Increase the ID and count
+    iterator++;
+
+    // Naming for the user to see
+    var textSize = document.createTextNode("double-click");
+
+    // Create div with the standard CSS style variables
+    var divResizeable = document.createElement('div');
+       divResizeable.className = "resize-drag";
+       divResizeable.id = iterator;
+       divResizeable.style.backgroundColor = "red";
+       divResizeable.style.borderRadius = "8px";
+       divResizeable.style.color = "white";
+       divResizeable.style.height = box_size;
+       divResizeable.style.width = box_size;
+       divResizeable.style.position = "absolute";
+       divResizeable.style.left = "50px";
+       divResizeable.style.top = "50px";
+       divResizeable.style.fontSize = "10";
+       divResizeable.style.overflowWrap = "break-word";
+       divResizeable.style.transform = "translate(-80px, -80px)";
+
+    // Create div with draggable properties  
+   var divDraggable = document.createElement('div');
+       divDraggable.className = "draggable";
+
+    // Give the new box an initial value of its size
+    divResizeable.appendChild(textSize);
+
+    // Give the div a defaukt location for parsing purposes
+    divResizeable.setAttribute('data-x', -80);
+    divResizeable.setAttribute('data-y', -80);
+
+    // Create a new draggable div, and put that inside a resizable div
+    //document.getElementsByTagName('body')[0].appendChild(divResizeable);
+    document.getElementsByTagName('div')[3].appendChild(divResizeable);
+    divResizeable.appendChild(divDraggable);
+};
+// When releasing the drag, make sure it fits within the correct grid
+function onDragRelease (event) {
+   var target = event.target,
+    // keep the dragged position in the data-x/data-y attributes
+    x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+    y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+    // Size must be a multiple of 80
+    newx = Math.round(x / 80) * 80;
+    newy = Math.round(y / 40) * 40;
+    console.log('translate(' + newx + 'px, ' + newy + 'px)');
+    target.style.transform = 'translate(' + newx + 'px, ' + newy + 'px)';
+    target.setAttribute('data-x', newx);
+    target.setAttribute('data-y', newy);
+
+    // turn blue after used
+    target.style.backgroundColor = "#29e";
+
+}
+//
+// Drag function
+//
+  function dragMoveListener (event) {
+    var target = event.target,
+        // keep the dragged position in the data-x/data-y attributes
+        x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+        y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+    console.log(x + ', ' + y);
+    // translate the element
+    target.style.webkitTransform =
+    target.style.transform =
+      'translate(' + x + 'px, ' + y + 'px)';
+      
+    // update the posiion attributes
+    target.setAttribute('data-x', x);
+    target.setAttribute('data-y', y);
+  }
+//
+// The rezise and drag code
+//
+interact('.resize-drag')
+  .draggable({
+    onmove: window.dragMoveListener,
+    restrict: {
+      restriction: 'parent',
+      elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+    },
+    onend: window.onDragRelease,
+
+  })
+  .resizable({
+    // resize from all edges and corners
+    edges: { left: true, right: true, bottom: true, top: true },
+
+    // keep the edges inside the parent
+    restrictEdges: {
+      outer: 'parent',
+      endOnly: true,
+    },
+
+    // minimum size
+    restrictSize: {
+      min: { width: 80, height: 80 },
+      max: { width: 320, height: 320 },
+    },
+    // Disable intertia on resize
+    inertia: false,
+  })
+  .on('resizemove', function (event) {
+    var target = event.target,
+        x = (parseFloat(target.getAttribute('data-x')) || 0),
+        y = (parseFloat(target.getAttribute('data-y')) || 0);
+
+    // Size must be a multiple of 80
+    event.rect.width = Math.round(event.rect.width / 75) * 75;
+    event.rect.height = Math.round(event.rect.height / 75) * 75;
+    
+    // update the element's style
+    target.style.width  = event.rect.width + 'px';
+    target.style.height = event.rect.height + 'px';
+
+    // translate when resizing from top or left edges
+    x += event.deltaRect.left;
+    y += event.deltaRect.top;
+
+    target.style.webkitTransform = target.style.transform =
+        'translate(' + x + 'px,' + y + 'px)';
+
+    target.setAttribute('data-x', x);
+    target.setAttribute('data-y', y);
+  })
+  //
+  // On double click, prompt for script name
+  //
+  .on('doubletap', function (event) {
+    var target = event.target;
+    var resp = window.prompt("Please enter entity name");
+    target.textContent = resp;
+  });
+//
+// Script the solution
+//
+document.getElementById("continue").onclick = function () {
+
+    // @TODO turn this into a global variable
+    var box_size = 75;
+
+    //  Column and width lines
+    entity_height_line = '';
+    entity_width_line = '';
+
+    // Deduce the column size
+    var col_size = 0;
+    var max_y = 0;
+    var max_x = 0;
+
+    // Array of column
+    var col_array = [];
+
+    // Turn JS into YAML
+    var yaml = '';
+    var entites = '';
+
+    // Increase the ID and count
+    var divs = document.getElementsByTagName("div");
+    for(var i = 0; i < divs.length; i++)
+    {
+      var entity = '';
+      // Divs are strings, so convert to a Int and check if number
+      var theId = parseInt(divs[i].id);
+      if (Number.isInteger(theId))
+      {
+        // get the position and names
+        // offset by 80 becasue HTML
+         x = parseInt(divs[i].getAttribute('data-x')) + 80;     
+         y = parseInt(divs[i].getAttribute('data-y'))  + 80; 
+         entity_id = divs[i].textContent;
+
+        // Handle the column shit
+         col_array.indexOf(x) === -1 ? col_array.push(x): false;
+         max_x = x > max_x ? x : max_x;
+
+         // Check the size
+         entity_height = parseInt(divs[i].clientHeight);
+         entity_width = parseInt(divs[i].clientWidth);
+
+         // Handle if the block height
+         if (entity_height / box_size > 1)
+         {
+            entity_height_line = '      column_span: ' + entity_height / box_size + '\n';
+         }
+         else if (entity_height / box_size == 1)
+         {
+            entity_height_line = '      column: ' + (x/80 + 1) + '\n';;
+         }
+         else
+         {
+          console.log('ya fucked up');
+         }
+
+         // Handle if the block width
+         if (entity_width / box_size > 1)
+         {
+            entity_width_line = '      row_span: ' + entity_width / box_size + '\n';
+         }
+         else if (entity_width / box_size == 1)
+         {
+            entity_width_line = '      row: ' + (y/80 + 1) + '\n';;
+         }
+         else
+         {
+          console.log('ya fucked up');
+         }
+
+         // create the string entity
+         entity = '    - entity: ' + entity_id + '\n';
+         entity += entity_height_line;
+         entity += entity_width_line;
+
+         // debug
+         console.log('x: ' + x + '. y: ' + y + '. Entity: ' + entity_id + '. entity_height: ' + entity_height + '. entity_width: ' + entity_width);
+
+      };
+
+      entites += entity;
+    
+    };
+    console.log('there are ' + col_array.length + ' columns');
+ 
+    // Turn JS into YAML
+    yaml = '<code class="yaml">\nscript.remote_control:\n';
+    yaml += 'custom_ui_state_card: state-card-tiles\n';
+    yaml += 'config:\n';
+    yaml += '  columns:';
+    yaml += col_array.length + '\n';
+    yaml += '  column_width: 75px\n';
+    yaml += '  row_width: 75px\n';
+    yaml += '  entities:\n';
+    yaml += entites;
+    // Replace YAML in PRE with new code
+    document.getElementsByTagName("pre")[0].innerHTML = yaml;
+
+    yaml += '</pre>';
+    hljs.initHighlighting.called = false;
+    hljs.initHighlighting();
+};
+</script>
