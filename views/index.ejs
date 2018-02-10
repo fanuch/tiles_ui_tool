@@ -161,7 +161,6 @@ function onDragRelease (event) {
     // Size must be a multiple of 80
     newx = Math.round(x / 80) * 80;
     newy = Math.round(y / 40) * 40;
-    console.log('translate(' + newx + 'px, ' + newy + 'px)');
     target.style.transform = 'translate(' + newx + 'px, ' + newy + 'px)';
     target.setAttribute('data-x', newx);
     target.setAttribute('data-y', newy);
@@ -178,7 +177,6 @@ function onDragRelease (event) {
         // keep the dragged position in the data-x/data-y attributes
         x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
         y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-    console.log(x + ', ' + y);
     // translate the element
     target.style.webkitTransform =
     target.style.transform =
@@ -269,6 +267,7 @@ document.getElementById("continue").onclick = function () {
 
     // Array of column
     var col_array = [];
+    var col_count;
 
     // Turn JS into YAML
     var yaml = '';
@@ -289,42 +288,54 @@ document.getElementById("continue").onclick = function () {
          y = parseInt(divs[i].getAttribute('data-y'))  + 80; 
          entity_id = divs[i].textContent;
 
-        // Handle the column shit
-         col_array.indexOf(x) === -1 ? col_array.push(x): false;
-         max_x = x > max_x ? x : max_x;
 
          // Check the size
          entity_height = parseInt(divs[i].clientHeight);
          entity_width = parseInt(divs[i].clientWidth);
 
-         // Handle if the block height
+         max_y = y > max_y ? y : max_y;
+         max_x = x+entity_width > max_x ? x+entity_width : max_x;
+         
+         // Handle if the block columns
          if (entity_height / box_size > 1)
          {
             entity_height_line = '      column_span: ' + entity_height / box_size + '\n';
+
          }
          else if (entity_height / box_size == 1)
          {
-            entity_height_line = '      column: ' + (x/80 + 1) + '\n';;
+            entity_height_line = '      column: ' + (x/80 + 1) + '\n';
          }
          else
          {
-          console.log('ya fucked up');
+            console.log('ya fucked up');
          }
 
-         // Handle if the block width
+         // Handle if the block width is larger than single
          if (entity_width / box_size > 1)
          {
+            // interate through size of the box
+            var sizing = entity_width / box_size;
+            for (z=0;z<sizing;z++)
+            {
+              current_pos = y + (z * box_size); 
+              // Handle the column shit
+              col_array.indexOf(current_pos) === -1 ? col_array.push(current_pos): false;       
+            }
+
             entity_width_line = '      row_span: ' + entity_width / box_size + '\n';
          }
          else if (entity_width / box_size == 1)
          {
-            entity_width_line = '      row: ' + (y/80 + 1) + '\n';;
+            entity_width_line = '      row: ' + (y/80 + 1) + '\n';
+            // check if the column has had a box in it
+            col_array.indexOf(y) === -1 ? col_array.push(y): false;    
          }
          else
          {
           console.log('ya fucked up');
          }
-
+         console.log('max x: ' + max_x);
          // create the string entity
          entity = '    - entity: ' + entity_id + '\n';
          entity += entity_height_line;
@@ -345,7 +356,7 @@ document.getElementById("continue").onclick = function () {
     yaml += 'custom_ui_state_card: state-card-tiles\n';
     yaml += 'config:\n';
     yaml += '  columns:';
-    yaml += col_array.length + '\n';
+    yaml +=  Math.round(max_x/box_size) + '\n';
     yaml += '  column_width: 75px\n';
     yaml += '  row_width: 75px\n';
     yaml += '  entities:\n';
