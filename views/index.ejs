@@ -337,7 +337,7 @@ document.getElementById("continue").onclick = function () {
          }
          console.log('max x: ' + max_x);
          // create the string entity
-         entity = '    - entity: ' + entity_id + '\n';
+         entity = '      - entity: ' + entity_id + '\n';
          entity += entity_height_line;
          entity += entity_width_line;
 
@@ -353,13 +353,13 @@ document.getElementById("continue").onclick = function () {
  
     // Turn JS into YAML
     yaml = '<code class="yaml">\nscript.remote_control:\n';
-    yaml += 'custom_ui_state_card: state-card-tiles\n';
-    yaml += 'config:\n';
-    yaml += '  columns:';
+    yaml += '  custom_ui_state_card: state-card-tiles\n';
+    yaml += '  config:\n';
+    yaml += '    columns: ';
     yaml +=  Math.round(max_x/box_size) + '\n';
-    yaml += '  column_width: 75px\n';
-    yaml += '  row_width: 75px\n';
-    yaml += '  entities:\n';
+    yaml += '    column_width: 75px\n';
+    yaml += '    row_width: 75px\n';
+    yaml += '    entities:\n';
     yaml += entites;
     // Replace YAML in PRE with new code
     document.getElementsByTagName("pre")[0].innerHTML = yaml;
