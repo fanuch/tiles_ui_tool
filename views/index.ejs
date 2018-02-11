@@ -302,7 +302,7 @@ document.getElementById("continue").onclick = function () {
          // If the span is larger than 1, specify it
          if (entity_height / box_size > 1)
          {
-            entity_height_line += '      column_span: ' + entity_height / box_size + '\n';
+            entity_height_line += '      row_span: ' + entity_height / box_size + '\n';
 
          }
 
@@ -313,7 +313,7 @@ document.getElementById("continue").onclick = function () {
          if (entity_width / box_size > 1)
          {
             var sizing = entity_width / box_size;
-            entity_width_line += '      row_span: ' + sizing + '\n';
+            entity_width_line += '      column_span: ' + sizing + '\n';
          }
 
          console.log('max x: ' + max_x);
