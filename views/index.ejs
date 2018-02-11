@@ -296,46 +296,28 @@ document.getElementById("continue").onclick = function () {
          max_y = y > max_y ? y : max_y;
          max_x = x+entity_width > max_x ? x+entity_width : max_x;
          
-         // Handle if the block columns
+         // Always place the column number down
+         entity_height_line = '      column: ' + (x/80 + 1) + '\n';
+
+         // If the span is larger than 1, specify it
          if (entity_height / box_size > 1)
          {
-            entity_height_line = '      column_span: ' + entity_height / box_size + '\n';
+            entity_height_line += '      column_span: ' + entity_height / box_size + '\n';
 
          }
-         else if (entity_height / box_size == 1)
-         {
-            entity_height_line = '      column: ' + (x/80 + 1) + '\n';
-         }
-         else
-         {
-            console.log('ya fucked up');
-         }
 
+         // Always specify the location of the row
+         entity_width_line = '      row: ' + (y/80 + 1) + '\n';
+         
          // Handle if the block width is larger than single
          if (entity_width / box_size > 1)
          {
-            // interate through size of the box
             var sizing = entity_width / box_size;
-            for (z=0;z<sizing;z++)
-            {
-              current_pos = y + (z * box_size); 
-              // Handle the column shit
-              col_array.indexOf(current_pos) === -1 ? col_array.push(current_pos): false;       
-            }
+            entity_width_line += '      row_span: ' + sizing + '\n';
+         }
 
-            entity_width_line = '      row_span: ' + entity_width / box_size + '\n';
-         }
-         else if (entity_width / box_size == 1)
-         {
-            entity_width_line = '      row: ' + (y/80 + 1) + '\n';
-            // check if the column has had a box in it
-            col_array.indexOf(y) === -1 ? col_array.push(y): false;    
-         }
-         else
-         {
-          console.log('ya fucked up');
-         }
          console.log('max x: ' + max_x);
+
          // create the string entity
          entity = '      - entity: ' + entity_id + '\n';
          entity += entity_height_line;
@@ -349,7 +331,6 @@ document.getElementById("continue").onclick = function () {
       entites += entity;
     
     };
-    console.log('there are ' + col_array.length + ' columns');
  
     // Turn JS into YAML
     yaml = '<code class="yaml">\nscript.remote_control:\n';
